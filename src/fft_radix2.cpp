@@ -37,7 +37,7 @@ void fft_radix2(complex32_t *x, complex32_t *Y, int n)
     }
 }
 
-void fft_radix2_1024(complex32_t *x, complex32_t *Y)
+void fft_radix2_1024_v1(complex32_t *x, complex32_t *Y)
 {
     // this is the fft radix implementation for size of 1024
     constexpr int N = 1024;

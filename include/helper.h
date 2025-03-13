@@ -6,12 +6,12 @@
     {                                                                \
         CPUTimer timer;                                              \
         double min_time = std::numeric_limits<double>::max();        \
-        for (int i = 0; i < 100; i++)                                \
+        for (int i = 0; i < 128; i++)                                \
         {                                                            \
             timer.start();                                           \
             code;                                                    \
             timer.stop();                                            \
             min_time = std::min(min_time, timer.getElapsedTimeMs()); \
         }                                                            \
-        std::cout << "Min time: " << min_time << " ms" << std::endl; \
+        std::cout << "time: " << min_time << " ms" << std::endl; \
     }

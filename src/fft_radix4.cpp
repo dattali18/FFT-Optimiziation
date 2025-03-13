@@ -48,7 +48,7 @@ void fft_radix4(complex32_t *x, complex32_t *Y, int n)
     }
 }
 
-void fft_radix4_1024(complex32_t *x, complex32_t *Y)
+void fft_radix4_1024_v1(complex32_t *x, complex32_t *Y)
 {
     constexpr int n = 1024;
     constexpr int n4 = n / 4;
@@ -135,6 +135,53 @@ void fft_radix4_1024(complex32_t *x, complex32_t *Y)
             Y[kj + mh] = t1;
             Y[kj + 2 * mh] = t3;
             Y[kj + 3 * mh] = t4;
+        }
+    }
+}
+
+void fft_radix4_no_bit_reverse(complex32_t *x, complex32_t *Y, int n)
+{
+    if ((n & (n - 1)) != 0 || (static_cast<int>(std::log2(n)) % 2 != 0))
+    {
+        std::cerr << "Error: n must be a power of 4." << std::endl;
+        return;
+    }
+
+    // Copy input to output for the first stage.
+    for (int i = 0; i < n; i++)
+    {
+        Y[i] = x[i];
+    }
+
+    int log4N = std::log2(n) / 2;
+
+    for (int s = 1; s <= log4N; s++)
+    {
+        int m = 1 << (2 * s); // m = 4^s
+        int mh = m >> 2;      // mh = m/4
+
+        for (int k = 0; k < n; k += m)
+        { 
+            // Iterate over groups of size m
+            for (int j = 0; j < mh; j++)
+            { 
+                // Iterate within each group's sub-butterflies
+                float twr, twi;
+                __sincosf(-2.0f * M_PI * j / m, &twi, &twr); // Correct twiddle factor
+
+                complex32_t tw = complex32_t(twr, twi);
+
+                complex32_t data[4];
+                data[0] = Y[k + j];
+                data[1] = Y[k + j + mh] * tw;
+                data[2] = Y[k + j + 2 * mh] * tw * tw;
+                data[3] = Y[k + j + 3 * mh] * tw * tw * tw;
+
+                Y[k + j] = data[0] + data[1] + data[2] + data[3];
+                Y[k + j + mh] = data[0] - data[1] + complex32_t(0.0f, 1.0f) * data[2] - complex32_t(0.0f, 1.0f) * data[3];
+                Y[k + j + 2 * mh] = data[0] + data[1] - data[2] - data[3];
+                Y[k + j + 3 * mh] = data[0] - data[1] - complex32_t(0.0f, 1.0f) * data[2] + complex32_t(0.0f, 1.0f) * data[3];
+            }
         }
     }
 }
