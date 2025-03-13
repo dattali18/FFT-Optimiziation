@@ -114,3 +114,5 @@ dkms.conf
 .vscode/
 build/
 .python-version
+
+.DS_Store
