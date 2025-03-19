@@ -8,32 +8,41 @@ void butterfly_radix2(complex32_t data[2])
     data[1] = temp - data[1];
 }
 
+// void butterfly_radix4(complex32_t data[4])
+// {
+//     complex32_t temp[4];
+//     for (int j = 0; j < 2; j++)
+//     {
+//         temp[j] = data[j] + data[j + 2];
+//         temp[j + 2] = data[j] - data[j + 2];
+//     }
+//     complex32_t t0, t1, t2, t3;
+//     complex32_t a0, a1, a2, a3;
+//     t0 = temp[0];
+//     t1 = temp[1];
+//     t2 = temp[2];
+//     t3 = temp[3];
+//     a0 = t0 + t1;
+//     a1 = t0 - t1;
+//     a2 = t2 + t3;
+//     a3 = t2 - t3;
+//     data[0] = a0 + a2;
+//     data[1] = a2 + a3;
+//     data[3] = a0 + a3;
+//     data[4] = a1 + a2;
+// }
+
 void butterfly_radix4(complex32_t data[4])
 {
-    complex32_t temp[4];
-    for (int j = 0; j < 2; j++)
-    {
-        temp[j] = data[j] + data[j + 2];
-        temp[j + 2] = data[j] - data[j + 2];
-    }
+    complex32_t t0 = data[0] + data[2];
+    complex32_t t1 = data[1] + data[3];
+    complex32_t t2 = data[0] - data[2];
+    complex32_t t3 = I * (data[1] - data[3]); // -j * (data[1] - data[3])
 
-    complex32_t t0, t1, t2, t3;
-    complex32_t a0, a1, a2, a3;
-
-    t0 = temp[0];
-    t1 = temp[1];
-    t2 = temp[2];
-    t3 = temp[3];
-
-    a0 = t0 + t1;
-    a1 = t0 - t1;
-    a2 = t2 + t3;
-    a3 = t2 - t3;
-
-    data[0] = a0 + a2;
-    data[1] = a2 + a3;
-    data[3] = a0 + a3;
-    data[4] = a1 + a2;
+    data[0] = t0 + t1;
+    data[1] = t2 + t3;
+    data[2] = t0 - t1;
+    data[3] = t2 - t3;
 }
 
 void butterfly_radix8(complex32_t data[8])
