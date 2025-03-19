@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "fft.h"
+#include "fft_radix2.h"
 
 #include "read_write_complex.h"
 #include "complex.h"
@@ -12,37 +13,39 @@
 int main(int argc, char *argv[])
 {
     // check if the number of arguments is correct
-    // if (argc != 4)
-    // {
-    //     std::cerr << "Usage: " << argv[0] << " <length> <input_file> <output_file>" << std::endl;
-    //     return 1;
-    // }
+    if (argc != 4)
+    {
+        std::cerr << "Usage: " << argv[0] << " <length> <input_file> <output_file>" << std::endl;
+        return 1;
+    }
 
-    // int length = std::stoi(argv[1]);
-    // std::string input_filename = argv[2];
-    // std::string output_filename = argv[3];
+    int length = std::stoi(argv[1]);
+    std::string input_filename = argv[2];
+    std::string output_filename = argv[3];
 
-    constexpr int length = 1024;
+    // constexpr int length = 1024;
+    init_twiddle_table();
 
     complex32_t *input_data = new complex32_t[length];
     complex32_t *output_data = new complex32_t[length];
 
     // read the input data
-    // read_complex_from_file(input_filename, input_data, length);
+    read_complex_from_file(input_filename, input_data, length);
 
 #define PROFILE
+#undef PROFILE
 
 #ifdef PROFILE
     MIN_TIME(fft_radix2_1024(input_data, output_data));
-    MIN_TIME(fft_radix4_1024(input_data, output_data));
-    MIN_TIME(fft_radix8_1024(input_data, output_data));
-    MIN_TIME(fft_radix16_1024(input_data, output_data));
+    MIN_TIME(fft_radix2(input_data, output_data, length));
 #else
-    fft_radix4(input_data, output_data, length);
+    // fft_radix2_1024(input_data, output_data);
+    fft_radix4_1024(input_data, output_data);
+    // fft_radix2(input_data, output_data, length);
 #endif
 
     // write the output data
-    // write_complex_from_file(output_filename, output_data, length);
+    write_complex_from_file(output_filename, output_data, length);
 
     delete[] input_data;
     delete[] output_data;

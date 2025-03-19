@@ -1,4 +1,5 @@
 #include "fft.h"
+#include "bit_reverse.h"
 
 void butterfly_radix2(complex32_t data[2])
 {
@@ -164,7 +165,8 @@ void fft_radix2_1024(complex32_t *x, complex32_t *Y)
 
     for (int i = 0; i < 1024; i++)
     {
-        Y[i] = x[i];
+        // Y[i] = x[i];
+        Y[bit_reverse(i, 10)] = x[i];
     }
 
     for (int s = 0; s < 10; s++)
@@ -175,12 +177,15 @@ void fft_radix2_1024(complex32_t *x, complex32_t *Y)
         // Single loop from 0 to N/2 (512)
         for (int i = 0; i < 512; i++)
         {
-            int jk = (i & (~(mh - 1))) | (i & (mh - 1));
+            int k = (i / mh) * m;
+            int j = i % mh;
+            int jk = k + j;
             int jkmh = jk + mh;
+            int twiddle_index = (jk % m) * 1024 / m;
 
             complex32_t data[2];
             data[0] = Y[jk];
-            data[1] = Y[jkmh] * tw_table[(jk % m) * 1024 / m]; // Calculate twiddle index
+            data[1] = Y[jkmh] * tw_table[twiddle_index];
 
             butterfly_radix2(data);
 
@@ -196,7 +201,8 @@ void fft_radix4_1024(complex32_t *x, complex32_t *Y)
 
     for (int i = 0; i < 1024; i++)
     {
-        Y[i] = x[i];
+        // Y[i] = x[i];
+        Y[bit_reverse(i, 10)] = x[i];
     }
 
     for (int s = 0; s < 5; s++)
@@ -207,7 +213,9 @@ void fft_radix4_1024(complex32_t *x, complex32_t *Y)
         // Single loop from 0 to N/4 (256)
         for (int i = 0; i < 256; i++)
         {
-            int jk = (i & (~(mh - 1))) | (i & (mh - 1));
+            int k = (i / mh) * m;
+            int j = i % mh;
+            int jk = k + j;
             int jkmh = jk + mh;
             int jk2mh = jk + 2 * mh;
             int jk3mh = jk + 3 * mh;
